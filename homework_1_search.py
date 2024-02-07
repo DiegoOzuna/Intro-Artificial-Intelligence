@@ -120,7 +120,7 @@ class SearchAlgorithms:
       "*** YOUR CODE HERE ***"
     # You can delete the line below once you have implemented your solution
     #above
-    return {"Returned solution: ", stack , "Expanded cities: " , stackVisited}
+    return "Returned solution: ", stack , "Expanded cities: " , stackVisited
   def uniformCostSearch(self, start, goal, graph, weights):
     """Search the node of least total cost first.
     Important things to remember
