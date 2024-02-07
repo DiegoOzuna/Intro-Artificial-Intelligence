@@ -1,1 +1,2 @@
 # Intro-Artificial-Intelligence
+This repo will hold my coursework in exploring the various methods of AI. Specifically, we start at the foundation and aim to explore Neural Networks in the second half of the semester.
