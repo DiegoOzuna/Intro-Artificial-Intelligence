@@ -68,20 +68,20 @@ heuristic = {
 class SearchAlgorithms:
   def breadthFirstSearch(self, start, goal, graph):
     Queue = [(start, [start])]  # The queue holds tuples of (node, path)
-    Visited = [start]  # This will hold the overall exploration of the algorithm
+    expanded = []  # This will hold the "expanded" exploration of the algorithm
     
     
     while Queue:  # While there are nodes to explore and we haven't found the goal...
         (next, path) = Queue.pop(0)  # Dequeue the next node and its path; dequeue here is done with .pop(0)
+        expanded.append(next)  # We note that if we are enqueueing children of next, then next was expanded
         # Note, tuple will allow us to keep track of the path that was taken for the current "next"
         children = graph.get(next, [])   # Grab the children of the current node
         for child in children:  # For each child...
-           if child not in Visited:  # If they aren't marked visited...
-            Visited.append(child)  # Mark child as visited
+           if child not in expanded:  # If they aren't marked visited...
             Queue.append((child, path + [child]))  # Add them to the queue with the current path
             if child == goal:  # If we've reached the goal...
               path = path + [child]    #current path has not been updated through loop, and wont be, therefore must be done in condition of goal check
-              return "Returned solution: ", path, "Expanded cities: ", Visited  # this will allow us to break out the loop ASAP and return answers
+              return "Returned solution: ", path, "Expanded cities: ", expanded  # this will allow us to break out the loop ASAP and return answers
 
     return "Nothing found" #back up in case nothing is found
  
@@ -90,21 +90,21 @@ class SearchAlgorithms:
  
   def depthFirstSearch(self, start, goal, graph):
     stack = [start]      #setting out our data structure. Remember to use only Stack.pop() and stack.append()
-    stackVisited = []    #this will just hold everything we went through
+    expanded = []    #this will just hold everything we went through
 
     while start != goal:
-      if start not in stackVisited:
-        stackVisited.append(start)
+      if start not in expanded:
+        expanded.append(start)
         
         children = list(graph.get(start, []))                #grab the children of the starting point...
         children.reverse()                             #we have to reverse it so that it is in proper order
         if children != []:                             #only pop if we have things to pop
             firstChild = children.pop()                #grab the first item in the list DFS style
-            while firstChild in stackVisited:          #if child is in visited stack, we continue till we find a new start position
+            while firstChild in expanded:          #if the child was already expanded, we continue till we find a new start position
               firstChild = children.pop()
         stack.append(firstChild)                       #add child to current route
         start = firstChild
-    return "Returned solution: ", stack , "Expanded cities: " , stackVisited
+    return "Returned solution: ", stack , "Expanded cities: " , expanded
   
 
   def uniformCostSearch(self, start, goal, graph, weights):
@@ -112,7 +112,7 @@ class SearchAlgorithms:
     #NOTE: I AM GOING TO USE A THREE TUPLE FOR THIS IMPLEMENTATION
     #REASON: We can keep cost, and city name within [0] and [1] but this would not keep track of the path. Therefore we will use [2] to hold the path taken to reach the node stored.
     pQueue.put((0,start,[start])) #in our priority queue, we will have a tuple, the cost and the child, and route to child
-    Visited = [start] #we start from start therefore it is automatically visited
+    expanded = [] #this will only hold the nodes that were "opened"
     #NOTE: the weight is given in the data struct weights above. This means for ex: if we insert Riverside into the queue, you would do .put(2, Riverside) since we are coming from San Bernardino
     #FURTHERNOTE: THE COSTS ADD ONTO EACHOTHER...
     while pQueue:                   #while our queue is not empty
@@ -122,12 +122,15 @@ class SearchAlgorithms:
 
       #Our goal will eventually be the node being viewed from priority queue. This is checked only when the node is popped out to ensure that all possible least cost paths were considered
       if node == goal:
-              return "Returned Solution: ", currentTuple[2], "Expanded Cities: ", Visited  #Since we search through cheapest routes, once goal is found, it is our immediate answer as more expensive routes were filtered out.
-
+              return "Returned Solution: ", currentTuple[2], "Expanded Cities: ", expanded  #Since we search through cheapest routes, once goal is found, it is our immediate answer as more expensive routes were filtered out.
+      
+      expanded.append(node)            #Since this node is being accessed to enqueue children nodes into priority queue, we can state that it was expanded
       for child in children:           #For each child...
-        if child not in Visited:       #If not marked visited...
-            Visited.append(child)      #Mark the child as visited...
-            pQueue.put((weights[(node, child)] + currentTuple[0], child, currentTuple[2] + [child]))    #And put the child, along with its weight + previous cost, and updated path, into our priority queue .
+        if child not in expanded:       #If was not expanded...
+            if (node, child) in weights:   #if node, child weight exists, use it to update cost...
+              pQueue.put((weights[(node, child)] + currentTuple[0], child, currentTuple[2] + [child]))    #And put the child, along with its weight + previous cost, and updated path, into our priority queue .
+            else:  #if node, child weight was not found in dictionary, it is because the dictionary is one-directional and therefore we access the correct value by reverse
+              pQueue.put((weights[(child, node)] + currentTuple[0], child, currentTuple[2] + [child]))    
 
     return "Nothing Found" #backup if no route was found.
   
@@ -135,20 +138,26 @@ class SearchAlgorithms:
   def AStar(self, start, goal, graph, weights, heuristic):
     pQueue = PriorityQueue()
     pQueue.put((0, start, [start]))   #We will utilize the same 3-tuple structure utilized in UCS. cost, start, and path.
-    Visited = [start]                 #we start from start therefore it is automatically visited
+    expanded = []                 #this will only hold the nodes that were "opened"
 
     while pQueue:                     #structure of UCS will be replicated, only difference will be the cost that is calculated.
        currentTuple = pQueue.get()
        node = currentTuple[1]
        children = graph.get(node, [])
 
+
        if node == goal:    #again, we note that if the current node (which was just dequeued from the priority queue) is our goal, then it is our lowest possible cost route to the goal
-          return "Returned Solution: ", currentTuple[2], "Expanded Cities: ", Visited
+          return "Returned Solution: ", currentTuple[2], "Expanded Cities: ", expanded
        
+       expanded.append(node)
+
        for child in children:
-          if child not in Visited:
-             Visited.append(child)
-             pQueue.put((weights[(node, child)] + currentTuple[0] + heuristic[(child)], child, currentTuple[2] + [child]))    #difference here is that we are also adding on to the cost, the heuristic
+          if child not in expanded:
+             if (node, child) in weights:
+                pQueue.put((weights[(node, child)] + currentTuple[0] + heuristic[(child)], child, currentTuple[2] + [child]))    #difference here is that we are also adding on to the cost, the heuristic
+             else:
+                pQueue.put((weights[(child, node)] + currentTuple[0] + heuristic[(child)], child, currentTuple[2] + [child]))
+                
 
     return "Nothing Found" #backup if no route was found.
 
