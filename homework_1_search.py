@@ -67,17 +67,23 @@ heuristic = {
 # implement your code to complete the functions.
 class SearchAlgorithms:
   def breadthFirstSearch(self, start, goal, graph):
-    """
-    Search the shallowest nodes in the search tree first.
-    Your search algorithm needs to return (i) a list of cities the algorithm
-    will propose to go to to reach the
-    goal, and (ii) set of expanded cities (visited nodes). Make sure to
-    implement a graph search algorithm.
-    """
-    "*** YOUR CODE HERE ***"
-    # You can delete the line below once you have implemented your solution
-    # above
-    return {"Returned solution: [], Expanded cities: []"}
+    Queue = [(start, [start])]  # The queue holds tuples of (node, path)
+    Visited = [start]  # This will hold the overall exploration of the algorithm
+    
+    
+    while Queue:  # While there are nodes to explore and we haven't found the goal...
+        (next, path) = Queue.pop(0)  # Dequeue the next node and its path; dequeue here is done with .pop(0)
+        # Note, tuple will allow us to keep track of the path that was taken for the current "next"
+        children = graph.get(next, [])   # Grab the children of the current node
+        for child in children:  # For each child...
+           if child not in Visited:  # If they aren't marked visited...
+            Visited.append(child)  # Mark child as visited
+            Queue.append((child, path + [child]))  # Add them to the queue with the current path
+            if child == goal:  # If we've reached the goal...
+              path = path + [child]    #current path has not been updated through loop, and wont be, therefore must be done in condition of goal check
+              return "Returned solution: ", path, "Expanded cities: ", Visited  # this will allow us to break out the loop ASAP and return answers
+
+    return "Nothing found" #back up in case nothing is found
  
  
  
@@ -98,30 +104,14 @@ class SearchAlgorithms:
               firstChild = children.pop()
         stack.append(firstChild)                       #add child to current route
         start = firstChild
-
-
-      
-
-
-
-
-      """
-      Search the deepest nodes in the search tree first.
-      Your search algorithm needs to return (i) a list of cities the algorithm
-      will propose to go to to reach the
-      goal, and (ii) set of expanded cities (visited nodes). Make sure to
-      implement a graph search algorithm.
-      Please be very careful when you expand the neighbor nodes in your code when
-      using stack. In case of using
-      normal list or a data structure other than the Stack, you might need to
-      reverse the order of the neighbor nodes
-      before you push them in the stack to get correct results
-      """
-      "*** YOUR CODE HERE ***"
-    # You can delete the line below once you have implemented your solution
-    #above
     return "Returned solution: ", stack , "Expanded cities: " , stackVisited
+  
+
   def uniformCostSearch(self, start, goal, graph, weights):
+    pQueue = PriorityQueue
+    
+
+
     """Search the node of least total cost first.
     Important things to remember
     1 - Use PriorityQueue with .put() and .get() functions
