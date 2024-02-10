@@ -96,7 +96,7 @@ class SearchAlgorithms:
       if start not in stackVisited:
         stackVisited.append(start)
         
-        children = graph.get(start, [])                #grab the children of the starting point...
+        children = list(graph.get(start, []))                #grab the children of the starting point...
         children.reverse()                             #we have to reverse it so that it is in proper order
         if children != []:                             #only pop if we have things to pop
             firstChild = children.pop()                #grab the first item in the list DFS style
@@ -108,8 +108,30 @@ class SearchAlgorithms:
   
 
   def uniformCostSearch(self, start, goal, graph, weights):
-    pQueue = PriorityQueue
-    
+    pQueue = PriorityQueue()
+    #NOTE: I AM GOING TO USE A THREE TUPLE FOR THIS IMPLEMENTATION
+    #REASON: We can keep cost, and city name within [0] and [1] but this would not keep track of the path. Therefore we will use [2] to hold the path taken to reach the node stored.
+    pQueue.put((0,start,[start])) #in our priority queue, we will have a tuple, the cost and the child, and route to child
+    Visited = [start] #we start from start therefore it is automatically visited
+    #NOTE: the weight is given in the data struct weights above. This means for ex: if we insert Riverside into the queue, you would do .put(2, Riverside) since we are coming from San Bernardino
+    #FURTHERNOTE: THE COSTS ADD ONTO EACHOTHER...
+    while pQueue:                   #while our queue is not empty
+      currentTuple = pQueue.get()     #assign current to be the highest priority tuple (this ensures us that we always explore cheapest path)
+      node = currentTuple[1]          #this will grab the city from tuple
+      children = graph.get(node, [])  #grab the children of the current highest priority
+
+      #Our goal will eventually be the node being viewed from priority queue. This is checked only when the node is popped out to ensure that all possible least cost paths were considered
+      if node == goal:
+              return "Returned Solution: ", currentTuple[2], "Expanded Cities: ", Visited  #Since we search through cheapest routes, once goal is found, it is our immediate answer as more expensive routes were filtered out.
+
+      for child in children:           #For each child...
+        if child not in Visited:       #If not marked visited...
+            Visited.append(child)      #Mark the child as visited...
+            pQueue.put((weights[(node, child)] + currentTuple[0], child, currentTuple[2] + [child]))    #And put the child, along with its weight + previous cost, and updated path, into our priority queue .
+
+
+
+
 
 
     """Search the node of least total cost first.
