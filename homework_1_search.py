@@ -130,28 +130,7 @@ class SearchAlgorithms:
             pQueue.put((weights[(node, child)] + currentTuple[0], child, currentTuple[2] + [child]))    #And put the child, along with its weight + previous cost, and updated path, into our priority queue .
 
 
-
-
-
-
-    """Search the node of least total cost first.
-    Important things to remember
-    1 - Use PriorityQueue with .put() and .get() functions
-    2 - In addition to putting the start or current node in the queue, also put
-    the cost (g(n)) using weights data structure
-    3 - When you're expanding the neighbor of the current you're standing at,
-    get its g(neighbor) by weights[(node, neighbor)]
-    4 - Calling weights[(node, neighbor)] may throw KeyError exception which is
-    due to the fact that the weights data structure
-    only has one directional weights. In the class, we mentioned that there
-    is a path from Arad to Sibiu and back. If the
-    exception occurs, you will need to get the weight of the nodes in
-    reverse direction (weights[(neighbor, node)])
-    """
-    "*** YOUR CODE HERE ***"
-    # You can delete the line below once you have implemented your solution
-    #above
-    return {"Returned solution: [], Expanded cities: []"}
+    return "Nothing Found" #backup if no route was found.
   def AStar(self, start, goal, graph, weights, heuristic):
     """Search the node that has the lowest combined cost and heuristic first.
     Important things to remember
