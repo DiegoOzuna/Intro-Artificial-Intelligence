@@ -43,6 +43,9 @@ class RandomBoardTicTacToe:
         self.WIDTH = self.size[0]/self.GRID_SIZE - self.OFFSET
         self.HEIGHT = self.size[1]/self.GRID_SIZE - self.OFFSET
 
+        #THIS IS USED TO HAVE DATA IN GRID....
+        self.cells = [[0 for _ in range(self.GRID_SIZE)] for _ in range(self.GRID_SIZE)]    #this will be used to communicate data
+
         # This sets the margin between each cell
         self.MARGIN = 5
 
@@ -56,7 +59,18 @@ class RandomBoardTicTacToe:
         self.screen = pygame.display.set_mode(self.size)
         pygame.display.set_caption("Tic Tac Toe Random Grid")
         self.screen.fill(self.BLACK)
+
         # Draw the grid
+        for row in range(self.GRID_SIZE):
+            for column in range(self.GRID_SIZE):
+                color = self.WHITE
+                pygame.draw.rect(self.screen,
+                                color,
+                                [(self.MARGIN + self.WIDTH) * column + self.MARGIN,
+                                (self.MARGIN + self.HEIGHT) * row + self.MARGIN,
+                                self.WIDTH,
+                                self.HEIGHT])
+
         
         """
         YOUR CODE HERE TO DRAW THE GRID OTHER CONTROLS AS PART OF THE GUI
@@ -132,9 +146,8 @@ class RandomBoardTicTacToe:
 
         while not done:
             for event in pygame.event.get():  # User did something
-                """
-                YOUR CODE HERE TO CHECK IF THE USER CLICKED ON A GRID ITEM. EXIT THE GAME IF THE USER CLICKED EXIT
-                """
+                if event.type == pygame.QUIT:  # If user clicked close
+                    done = True  # Flag that we are done so we exit this loop
                 
                 """
                 YOUR CODE HERE TO HANDLE THE SITUATION IF THE GAME IS OVER. IF THE GAME IS OVER THEN DISPLAY THE SCORE,
@@ -147,6 +160,19 @@ class RandomBoardTicTacToe:
                 DRAW CROSS (OR NOUGHT DEPENDING ON WHICH SYMBOL YOU CHOSE FOR YOURSELF FROM THE gui) AND CALL YOUR 
                 PLAY_AI FUNCTION TO LET THE AGENT PLAY AGAINST YOU
                 """
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    # User clicks the mouse. Get the position
+                    pos = pygame.mouse.get_pos()
+                    # Change the x/y screen coordinates to grid coordinates
+                    column = int(pos[0] // (self.WIDTH + self.MARGIN))
+                    row = int(pos[1] // (self.HEIGHT + self.MARGIN))
+                    # Set that location to one
+                    if self.cells[row][column] != 1 or 0:                       #check if cell is even open to play...
+                        self.cells[row][column] = 1
+                        print("Click ", pos, "Grid coordinates: ", row, column)
+                        print(self.cells[row][column])
+                    else:
+                        print("This cell already has a value !")    #maybe make this a popup after reading further documentation.
                 
                 # if event.type == pygame.MOUSEBUTTONUP:
                     # Get the position
@@ -164,6 +190,9 @@ class RandomBoardTicTacToe:
         pygame.quit()
 
 tictactoegame = RandomBoardTicTacToe()
+
+tictactoegame.play_game()
+tictactoegame.draw_game()
 """
 YOUR CODE HERE TO SELECT THE OPTIONS VIA THE GUI CALLED FROM THE ABOVE LINE
 AFTER THE ABOVE LINE, THE USER SHOULD SELECT THE OPTIONS AND START THE GAME. 
