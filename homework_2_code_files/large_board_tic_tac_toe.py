@@ -130,11 +130,17 @@ class RandomBoardTicTacToe:
 
     def game_reset(self):
         self.draw_game()
-        """
+        """ 
         YOUR CODE HERE TO RESET THE BOARD TO VALUE 0 FOR ALL CELLS AND CREATE A NEW GAME STATE WITH NEWLY INITIALIZED
         BOARD STATE
         """
+        #Reset the cells to value 0 
+        for row in range(self.GRID_SIZE):
+            for col in range(self.GRID_SIZE):
+                self.cells[row][col] = 0
         
+        #May need to reset other game-related varaibles?????
+
         pygame.display.update()
 
     def play_game(self, mode = "player_vs_ai"):
@@ -143,7 +149,7 @@ class RandomBoardTicTacToe:
         clock = pygame.time.Clock()
 
         # Create a GameStatus object
-        self.game_state = GameStatus(tictactoegame, True)  # True if it's O's turn, False if it's X's turn
+        self.game_state = GameStatus(tictactoegame.cells, True, self.GRID_SIZE)  # True if it's O's turn, False if it's X's turn
 
 
         while not done:
@@ -175,14 +181,23 @@ class RandomBoardTicTacToe:
                             center_y = (row * (self.HEIGHT + self.MARGIN)) + self.HEIGHT // 2
 
                             # Set that location to one
-                            if self.cells[row][column] != 1 or 2:                       #check if cell is even open to play...
+                            if self.cells[row][column] != 1 and self.cells[row][column] != 2:                       #check if cell is even open to play...
                                 self.cells[row][column] = 1                             #user playing will leave value of 1
                                 self.draw_cross(self.screen, center_x, center_y)                                 #draw in cell user symbol...
                                 print("Click ", pos, "Grid coordinates: ", row, column)
-                                print(self.cells[row][column])
+                                
+
+                                ###############################
+                                for row in self.cells:
+                                    for cell in row:
+                                        print(cell, end=' ')
+                                    print()
+                                ###############################
+
                             else:
                                 print("This cell already has a value !")    #maybe make this a popup after reading further documentation.
                             self.change_turn()
+                            self.game_state.get_moves()
                 else:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                             # User clicks the mouse. Get the position
@@ -195,11 +210,16 @@ class RandomBoardTicTacToe:
                             center_y = (row * (self.HEIGHT + self.MARGIN)) + self.HEIGHT // 2
 
                             # Set that location to one
-                            if self.cells[row][column] != 1 or 2:                       #check if cell is even open to play...
+                            if self.cells[row][column] != 1 and self.cells[row][column] != 2:                       #check if cell is even open to play...
                                 self.cells[row][column] = 2                             #user playing will leave value of 2
                                 self.draw_circle(self.screen, center_x, center_y)                                 #draw in cell user symbol...
                                 print("Click ", pos, "Grid coordinates: ", row, column)
-                                print(self.cells[row][column])
+                                ###############################
+                                for row in self.cells:
+                                    for cell in row:
+                                        print(cell, end=' ')
+                                    print()
+                                ###############################
                             else:
                                 print("This cell already has a value !")    #maybe make this a popup after reading further documentation.
                             self.change_turn()
