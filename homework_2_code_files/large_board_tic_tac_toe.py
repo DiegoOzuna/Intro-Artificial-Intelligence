@@ -84,18 +84,17 @@ class RandomBoardTicTacToe:
             pygame.display.set_caption("Tic Tac Toe - O's turn")
         else:
             pygame.display.set_caption("Tic Tac Toe - X's turn")
+        self.game_state.turn_O = not self.game_state.turn_O
 
 
-    def draw_circle(self, x, y):
-        """
-        YOUR CODE HERE TO DRAW THE CIRCLE FOR THE NOUGHTS PLAYER
-        """
+    def draw_circle(self, screen, x, y):
+        pygame.draw.circle(screen, [255,0,0], (x, y), 50, 5)
         
 
-    def draw_cross(self, x, y):
-        """
-        YOUR CODE HERE TO DRAW THE CROSS FOR THE CROSS PLAYER AT THE CELL THAT IS SELECTED VIA THE gui
-        """
+    def draw_cross(self, screen, x, y):
+        size = 50
+        pygame.draw.line(screen, [0,0,255], (x - size, y - size), (x + size, y + size), 5)
+        pygame.draw.line(screen, [0,0,255], (x + size, y - size), (x - size, y + size), 5)
         
 
     def is_game_over(self):
@@ -143,8 +142,12 @@ class RandomBoardTicTacToe:
 
         clock = pygame.time.Clock()
 
+        # Create a GameStatus object
+        self.game_state = GameStatus(tictactoegame, True)  # True if it's O's turn, False if it's X's turn
+
 
         while not done:
+            
             for event in pygame.event.get():  # User did something
                 if event.type == pygame.QUIT:  # If user clicked close
                     done = True  # Flag that we are done so we exit this loop
@@ -160,19 +163,47 @@ class RandomBoardTicTacToe:
                 DRAW CROSS (OR NOUGHT DEPENDING ON WHICH SYMBOL YOU CHOSE FOR YOURSELF FROM THE gui) AND CALL YOUR 
                 PLAY_AI FUNCTION TO LET THE AGENT PLAY AGAINST YOU
                 """
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    # User clicks the mouse. Get the position
-                    pos = pygame.mouse.get_pos()
-                    # Change the x/y screen coordinates to grid coordinates
-                    column = int(pos[0] // (self.WIDTH + self.MARGIN))
-                    row = int(pos[1] // (self.HEIGHT + self.MARGIN))
-                    # Set that location to one
-                    if self.cells[row][column] != 1 or 0:                       #check if cell is even open to play...
-                        self.cells[row][column] = 1
-                        print("Click ", pos, "Grid coordinates: ", row, column)
-                        print(self.cells[row][column])
-                    else:
-                        print("This cell already has a value !")    #maybe make this a popup after reading further documentation.
+                if self.game_state.turn_O == True:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                            # User clicks the mouse. Get the position
+                            pos = pygame.mouse.get_pos()
+                            # Change the x/y screen coordinates to grid coordinates
+                            column = int(pos[0] // (self.WIDTH + self.MARGIN))
+                            row = int(pos[1] // (self.HEIGHT + self.MARGIN))
+                            # Calculate the center position of the cell
+                            center_x = (column * (self.WIDTH + self.MARGIN)) + self.WIDTH // 2
+                            center_y = (row * (self.HEIGHT + self.MARGIN)) + self.HEIGHT // 2
+
+                            # Set that location to one
+                            if self.cells[row][column] != 1 or 2:                       #check if cell is even open to play...
+                                self.cells[row][column] = 1                             #user playing will leave value of 1
+                                self.draw_cross(self.screen, center_x, center_y)                                 #draw in cell user symbol...
+                                print("Click ", pos, "Grid coordinates: ", row, column)
+                                print(self.cells[row][column])
+                            else:
+                                print("This cell already has a value !")    #maybe make this a popup after reading further documentation.
+                            self.change_turn()
+                else:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                            # User clicks the mouse. Get the position
+                            pos = pygame.mouse.get_pos()
+                            # Change the x/y screen coordinates to grid coordinates
+                            column = int(pos[0] // (self.WIDTH + self.MARGIN))
+                            row = int(pos[1] // (self.HEIGHT + self.MARGIN))
+                            # Calculate the center position of the cell
+                            center_x = (column * (self.WIDTH + self.MARGIN)) + self.WIDTH // 2
+                            center_y = (row * (self.HEIGHT + self.MARGIN)) + self.HEIGHT // 2
+
+                            # Set that location to one
+                            if self.cells[row][column] != 1 or 2:                       #check if cell is even open to play...
+                                self.cells[row][column] = 2                             #user playing will leave value of 2
+                                self.draw_circle(self.screen, center_x, center_y)                                 #draw in cell user symbol...
+                                print("Click ", pos, "Grid coordinates: ", row, column)
+                                print(self.cells[row][column])
+                            else:
+                                print("This cell already has a value !")    #maybe make this a popup after reading further documentation.
+                            self.change_turn()
+                    
                 
                 # if event.type == pygame.MOUSEBUTTONUP:
                     # Get the position
