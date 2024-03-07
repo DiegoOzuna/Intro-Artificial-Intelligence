@@ -22,7 +22,10 @@ class GameStatus:
 		no_zeros = all(0 not in sublist for sublist in self.board_state)
 
 		if no_zeros:
-			self.get_scores(no_zeros)
+			scores = self.get_scores(no_zeros)
+			print(scores)
+
+		return no_zeros
 		
 
 	def get_scores(self, terminal):
@@ -36,26 +39,37 @@ class GameStatus:
         """        
 		rows = len(self.board_state)
 		cols = len(self.board_state[0])
-		scores = 0
-		#num of consecutive symbols needed to win
-		check_point = 3 if terminal else 2 #if terminal????????
+		scores = {1: 0, 2: 0}					#keep count of player 1 and 2...
+		check_point = 3 if terminal else 2 
 		
-		#Check for horizontal lines
+		# Check rows
 		for i in range(rows):
-			#Row counts
-			rowc_X = 0
-			rowc_O = 0
-			#Col counts
-			colc_X = 0
-			colc_O = 0
-			# 2 = naught, 1 = cross.
-			for j in range(cols):
-				return
-				#check to see if states[i][j] are crosses or naught. do count stuff 
-			
-		#Check for vertical lines
+			for j in range(cols - 2):
+				if self.board_state[i][j] == self.board_state[i][j+1] == self.board_state[i][j+2]:
+					scores[self.board_state[i][j]] += 1      #update player score if a 3 consecutive pair was found in rows
+				
+				
+				#if i < rows-2 and self.board_state[i][j] == self.board_state[i+1][j] == self.board_state[i+2][j]:  #if three consecutive, increment
+					#scores[self.board_state[i][j]] += 1		#update player score if a 3 consecutive pair was found in columns
 
-		#Check for diagonal lines
+		#Check for Cols
+		for j in range(cols):
+			for i in range(rows - 2):
+				if self.board_state[i][j] == self.board_state[i+1][j] == self.board_state[i+2][j]:
+					scores[self.board_state[i][j]] += 1
+	
+		#Check for diagonal lines: top left to bottom right
+		for i in range(rows-2):
+			for j in range(cols -2):
+				if self.board_state[i][j] == self.board_state[i+1][j+1] == self.board_state[i+2][j+2]:
+					scores[self.board_state[i][j]] +=1
+		#Diagonal lines: bottom left to top right
+		for i in range(2,rows):
+			for j in range(cols -2):
+				if self.board_state[i][j] == self.board_state[i-1][j+1] == self.board_state[i-2][j+2]:
+					scores[self.board_state[i][j]] +=1
+
+		return scores
 	    
 
 	def get_negamax_scores(self, terminal):
@@ -67,8 +81,37 @@ class GameStatus:
         """
 		rows = len(self.board_state)
 		cols = len(self.board_state[0])
-		scores = 0
-		check_point = 3 if terminal else 2
+		scores = {1: 0, 2: 0}					#keep count of player 1 and 2...
+		check_point = 3 if terminal else 2 
+		
+		# Check rows
+		for i in range(rows):
+			for j in range(cols - 2):
+				if self.board_state[i][j] == self.board_state[i][j+1] == self.board_state[i][j+2]:
+					scores[self.board_state[i][j]] += 100     #update player score if a 3 consecutive pair was found in rows
+				
+				
+				#if i < rows-2 and self.board_state[i][j] == self.board_state[i+1][j] == self.board_state[i+2][j]:  #if three consecutive, increment
+					#scores[self.board_state[i][j]] += 1		#update player score if a 3 consecutive pair was found in columns
+
+		#Check for Cols
+		for j in range(cols):
+			for i in range(rows - 2):
+				if self.board_state[i][j] == self.board_state[i+1][j] == self.board_state[i+2][j]:
+					scores[self.board_state[i][j]] += 100
+	
+		#Check for diagonal lines: top left to bottom right
+		for i in range(rows-2):
+			for j in range(cols -2):
+				if self.board_state[i][j] == self.board_state[i+1][j+1] == self.board_state[i+2][j+2]:
+					scores[self.board_state[i][j]] +=100
+		#Diagonal lines: bottom left to top right
+		for i in range(2,rows):
+			for j in range(cols -2):
+				if self.board_state[i][j] == self.board_state[i-1][j+1] == self.board_state[i-2][j+2]:
+					scores[self.board_state[i][j]] +=100
+
+		return scores
 	    
 
 	def get_moves(self):
