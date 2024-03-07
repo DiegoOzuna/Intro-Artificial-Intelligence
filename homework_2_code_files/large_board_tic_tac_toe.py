@@ -36,8 +36,8 @@ class RandomBoardTicTacToe:
         self.GRID_SIZE = 4
         self. OFFSET = 5
 
-        self.CIRCLE_COLOR = (140, 146, 172)
-        self.CROSS_COLOR = (140, 146, 172)
+        self.CIRCLE_COLOR = (255, 0, 0)
+        self.CROSS_COLOR = (0, 0, 255)
 
         # This sets the WIDTH and HEIGHT of each grid location
         self.WIDTH = self.size[0]/self.GRID_SIZE - self.OFFSET
@@ -88,13 +88,13 @@ class RandomBoardTicTacToe:
 
 
     def draw_circle(self, screen, x, y):
-        pygame.draw.circle(screen, [255,0,0], (x, y), 50, 5)
+        pygame.draw.circle(screen, self.CIRCLE_COLOR, (x, y), 50, 5)
         
 
     def draw_cross(self, screen, x, y):
         size = 50
-        pygame.draw.line(screen, [0,0,255], (x - size, y - size), (x + size, y + size), 5)
-        pygame.draw.line(screen, [0,0,255], (x + size, y - size), (x - size, y + size), 5)
+        pygame.draw.line(screen, self.CROSS_COLOR, (x - size, y - size), (x + size, y + size), 5)
+        pygame.draw.line(screen, self.CROSS_COLOR, (x + size, y - size), (x - size, y + size), 5)
         
 
     def is_game_over(self):
@@ -185,6 +185,7 @@ class RandomBoardTicTacToe:
                                 self.cells[row][column] = 1                             #user playing will leave value of 1
                                 self.draw_cross(self.screen, center_x, center_y)                                 #draw in cell user symbol...
                                 print("Click ", pos, "Grid coordinates: ", row, column)
+                                self.change_turn()
                                 
 
                                 ###############################
@@ -196,7 +197,6 @@ class RandomBoardTicTacToe:
 
                             else:
                                 print("This cell already has a value !")    #maybe make this a popup after reading further documentation.
-                            self.change_turn()
                             self.game_state.get_moves()
                 else:
                     if event.type == pygame.MOUSEBUTTONDOWN:
@@ -214,6 +214,8 @@ class RandomBoardTicTacToe:
                                 self.cells[row][column] = 2                             #user playing will leave value of 2
                                 self.draw_circle(self.screen, center_x, center_y)                                 #draw in cell user symbol...
                                 print("Click ", pos, "Grid coordinates: ", row, column)
+
+                                self.change_turn()
                                 ###############################
                                 for row in self.cells:
                                     for cell in row:
@@ -222,7 +224,6 @@ class RandomBoardTicTacToe:
                                 ###############################
                             else:
                                 print("This cell already has a value !")    #maybe make this a popup after reading further documentation.
-                            self.change_turn()
                     
                 
                 # if event.type == pygame.MOUSEBUTTONUP:
