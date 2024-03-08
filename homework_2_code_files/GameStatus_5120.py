@@ -69,7 +69,7 @@ class GameStatus:
 				if self.board_state[i][j] == self.board_state[i-1][j+1] == self.board_state[i-2][j+2]:
 					scores[self.board_state[i][j]] +=1
 
-		return scores
+		return scores[1] - scores[2]   #return the difference between player and ai (0 is draw, +num is player won, -num is ai won)
 	    
 
 	def get_negamax_scores(self, terminal):
@@ -129,7 +129,7 @@ class GameStatus:
 					#add it to possible move list
 					moves.append((x,y))
 		return moves
-
+	
 	def get_new_state(self, move):
 		new_board_state = self.board_state.copy()
 		x, y = move[0], move[1]
