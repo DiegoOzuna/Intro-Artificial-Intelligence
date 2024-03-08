@@ -46,6 +46,12 @@ class RandomBoardTicTacToe:
         #THIS IS USED TO HAVE DATA IN GRID....
         self.cells = [[0 for _ in range(self.GRID_SIZE)] for _ in range(self.GRID_SIZE)]    #this will be used to communicate data
 
+        self.minimax = True    #if true, then we are using minimax, if false then we are using negamax
+        
+        self.depth = 2         #default of depth is 2. Choice made is to make sure code can run in other environments
+                               #we can have gui change this value. for now, a good guess could be made from looking at 4 total steps
+                               #(2 from ai, 2 from human...)
+
         # This sets the margin between each cell
         self.MARGIN = 5
 
@@ -120,13 +126,48 @@ class RandomBoardTicTacToe:
         THE RETURN VALUES FROM YOUR MINIMAX/NEGAMAX ALGORITHM SHOULD BE THE SCORE, MOVE WHERE SCORE IS AN INTEGER
         NUMBER AND MOVE IS AN X,Y LOCATION RETURNED BY THE AGENT
         """
+        #self.change_turn()
+        #pygame.display.update()
+
+        #if minimax is selected
+        if(self.minimax):
+            #minimax(game_state: GameStatus, depth: int, maximizingPlayer: bool, alpha=float('-inf'), beta=float('inf')):terminal = game_state.is_terminal())
+            #NOTE: we only pass the gameboard, the depth assigned, and the current turn. The alpha and beta is handled in function...
+            score, bestmove = minimax(self.game_state, self.depth, self.game_state.turn_O)
+        #if negamax is selected
+        else:
+            #negamax(game_status: GameStatus, depth: int, turn_multiplier: int, alpha=float('-inf'), beta=float('inf')):
+            #NOTE: we only pass the gameboard, the depth assigned, and the current turn. The alpha and beta is handled in function...
+            score, bestmove = negamax(self.game_state, self.depth, 1)
         
-        self.change_turn()
+        #update the game state with the best move ai chose...
+        #NOTE: move also changes current turn...
+        self.move(bestmove)
+        #Draw AI move at {bestmove} 
+        x, y = self.grid_to_screen(bestmove[0],bestmove[1]) #function translates grid coordinates to screen
+        if self.game_state.turn_O:
+            self.draw_circle(self.screen,x,y) #draw at calculated x and y
+        else:
+            self.draw_cross(self.screen,x,y) #draw at calculated x and y
+        
+        #update display
         pygame.display.update()
+       
         terminal = self.game_state.is_terminal()
+        if terminal:
+            #compute and display final scores
+            scores = self.game_state.get_scores(terminal)
+            print(f"Final Scores: {scores}") 
         """ USE self.game_state.get_scores(terminal) HERE TO COMPUTE AND DISPLAY THE FINAL SCORES """
-
-
+        
+    def grid_to_screen(self, grid_x, grid_y):
+        # Translate grid coordinates to screen coordinates
+        screen_x = (grid_x * (self.WIDTH + self.MARGIN)) + self.WIDTH // 2
+        screen_y = (grid_y * (self.HEIGHT + self.MARGIN)) + self.HEIGHT // 2
+        return screen_x, screen_y
+    
+        
+        
 
     def game_reset(self):
         self.draw_game()
@@ -197,33 +238,13 @@ class RandomBoardTicTacToe:
 
                             else:
                                 print("This cell already has a value !")    #maybe make this a popup after reading further documentation.
-                            self.game_state.get_moves()
-                else:
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                            # User clicks the mouse. Get the position
-                            pos = pygame.mouse.get_pos()
-                            # Change the x/y screen coordinates to grid coordinates
-                            column = int(pos[0] // (self.WIDTH + self.MARGIN))
-                            row = int(pos[1] // (self.HEIGHT + self.MARGIN))
-                            # Calculate the center position of the cell
-                            center_x = (column * (self.WIDTH + self.MARGIN)) + self.WIDTH // 2
-                            center_y = (row * (self.HEIGHT + self.MARGIN)) + self.HEIGHT // 2
+                else:   
+                    #AI TURN !!!!!!!!!!!!!
+                    self.play_ai()
+                    
 
-                            # Set that location to one
-                            if self.cells[row][column] != 1 and self.cells[row][column] != 2:                       #check if cell is even open to play...
-                                self.cells[row][column] = 2                             #user playing will leave value of 2
-                                self.draw_circle(self.screen, center_x, center_y)                                 #draw in cell user symbol...
-                                print("Click ", pos, "Grid coordinates: ", row, column)
-
-                                self.change_turn()
-                                ###############################
-                                for row in self.cells:
-                                    for cell in row:
-                                        print(cell, end=' ')
-                                    print()
-                                ###############################
-                            else:
-                                print("This cell already has a value !")    #maybe make this a popup after reading further documentation.
+                    if(self.game_state.is_terminal()):
+                        done = True
                     
                 
                 # if event.type == pygame.MOUSEBUTTONUP:
@@ -251,3 +272,33 @@ AFTER THE ABOVE LINE, THE USER SHOULD SELECT THE OPTIONS AND START THE GAME.
 YOUR FUNCTION PLAY_GAME SHOULD THEN BE CALLED WITH THE RIGHT OPTIONS AS SOON
 AS THE USER STARTS THE GAME
 """
+
+
+
+"""
+        WILL BE REPURPOSED FOR HUMAN vs HUMAN 
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                            # User clicks the mouse. Get the position
+                            pos = pygame.mouse.get_pos()
+                            # Change the x/y screen coordinates to grid coordinates
+                            column = int(pos[0] // (self.WIDTH + self.MARGIN))
+                            row = int(pos[1] // (self.HEIGHT + self.MARGIN))
+                            # Calculate the center position of the cell
+                            center_x = (column * (self.WIDTH + self.MARGIN)) + self.WIDTH // 2
+                            center_y = (row * (self.HEIGHT + self.MARGIN)) + self.HEIGHT // 2
+
+                            # Set that location to one
+                            if self.cells[row][column] != 1 and self.cells[row][column] != 2:                       #check if cell is even open to play...
+                                self.cells[row][column] = 2                             #user playing will leave value of 2
+                                self.draw_circle(self.screen, center_x, center_y)                                 #draw in cell user symbol...
+                                print("Click ", pos, "Grid coordinates: ", row, column)
+
+                                self.change_turn()
+                                ###############################
+                                for row in self.cells:
+                                    for cell in row:
+                                        print(cell, end=' ')
+                                    print()
+                                ###############################
+                            else:
+                                print("This cell already has a value !")    #maybe make this a popup after reading further documentation."""
