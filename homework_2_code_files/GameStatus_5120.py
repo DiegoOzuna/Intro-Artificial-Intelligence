@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
-
 class GameStatus:
 
 
@@ -23,10 +20,12 @@ class GameStatus:
 		no_zeros = all(0 not in sublist for sublist in self.board_state)
 
 		if no_zeros:
+			#Board is full
 			scores = self.get_scores(no_zeros)
 			print(scores)
-
-		return no_zeros
+			return True
+		
+		return False #Board is not full
 		
 
 	def get_scores(self, terminal):
@@ -130,8 +129,8 @@ class GameStatus:
 					except KeyError:
 						print(f'Key: {self.board_state[i][j]} does not exist')
 
-						
-		return scores[1] - scores[2]   #return the difference between player and ai (0 is draw, +num is player won, -num is ai won)
+		
+		return -scores[2] + scores[1]   #return the difference between ai and player (0 is draw, +num is player won, -num is ai won)
 	    
 
 	def get_moves(self):
@@ -154,12 +153,12 @@ class GameStatus:
 		new_board_state = self.board_state.copy()
 		x, y = move[0], move[1]
 		#new_board_state[x,y] = 1 if self.turn_O else -1
-		new_board_state[x][y] = 1 if self.turn_O else -1
+		new_board_state[x][y] = 1 if self.turn_O else 2
 		return GameStatus(new_board_state, not self.turn_O, self.GRID_SIZE)
 	
-	#helper function to undo a status to its original status prior to a move
-	def undo_move(self, move):
 
+	def undo_move(self, move):
+		
 		print("Undo move")
 		self.board_state[move[0]][move[1]] = 0
 		self.turn_O = not self.turn_O
