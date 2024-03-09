@@ -33,7 +33,7 @@ class RandomBoardTicTacToe:
         self.RED = (255, 0, 0)
 
         # Grid Size
-        self.GRID_SIZE = 4
+        self.GRID_SIZE = 3
         self. OFFSET = 5
 
         self.CIRCLE_COLOR = (255, 0, 0)
@@ -59,6 +59,19 @@ class RandomBoardTicTacToe:
         pygame.init()
         self.game_reset()
 
+    def findStartxy(self):
+        #purpose of this function is ot grab the screen and make a smaller window for our grid to be located in
+        total_grid_width = self.GRID_SIZE * (self.WIDTH/2 + self.MARGIN)
+        total_grid_height = self.GRID_SIZE * (self.HEIGHT/2 + self.MARGIN)
+
+        # Calculate starting x coordinate to center the grid horizontally
+        start_x = (self.width - total_grid_width) / 2
+
+        # Calculate starting y coordinate to position the grid at the bottom
+        start_y = self.height - total_grid_height - self.MARGIN
+
+        return start_x, start_y
+
     def draw_game(self):
         # Create a 2 dimensional array using the column and row variables
         pygame.init()
@@ -66,16 +79,18 @@ class RandomBoardTicTacToe:
         pygame.display.set_caption("Tic Tac Toe Random Grid")
         self.screen.fill(self.BLACK)
 
+        start_x, start_y = self.findStartxy()
+
         # Draw the grid
         for row in range(self.GRID_SIZE):
             for column in range(self.GRID_SIZE):
                 color = self.WHITE
                 pygame.draw.rect(self.screen,
                                 color,
-                                [(self.MARGIN + self.WIDTH) * column + self.MARGIN,
-                                (self.MARGIN + self.HEIGHT) * row + self.MARGIN,
-                                self.WIDTH,
-                                self.HEIGHT])
+                                [start_x + (self.MARGIN + self.WIDTH/2) * column,
+                                start_y + (self.MARGIN + self.HEIGHT/2) * row,
+                                self.WIDTH/2,
+                                self.HEIGHT/2])
 
         
         """
@@ -93,11 +108,12 @@ class RandomBoardTicTacToe:
 
 
     def draw_circle(self, screen, x, y):
-        pygame.draw.circle(screen, self.CIRCLE_COLOR, (x, y), 50, 5)
+        radius = min(self.WIDTH, self.HEIGHT) // 4  # Adjust the value as needed
+        pygame.draw.circle(screen, self.CIRCLE_COLOR, (x, y), radius, 5)
         
 
     def draw_cross(self, screen, x, y):
-        size = 50
+        size = min(self.WIDTH, self.HEIGHT) // 4  # Adjust the value as needed
         pygame.draw.line(screen, self.CROSS_COLOR, (x - size, y - size), (x + size, y + size), 5)
         pygame.draw.line(screen, self.CROSS_COLOR, (x + size, y - size), (x - size, y + size), 5)
         
@@ -159,9 +175,11 @@ class RandomBoardTicTacToe:
         
     def grid_to_screen(self, grid_x, grid_y):
         # Translate grid coordinates to screen coordinates
-        screen_x = (grid_x * (self.WIDTH + self.MARGIN)) + self.WIDTH // 2
-        screen_y = (grid_y * (self.HEIGHT + self.MARGIN)) + self.HEIGHT // 2
+        start_x, start_y = self.findStartxy()
+        screen_x = start_x + (grid_x * (self.WIDTH/2 + self.MARGIN)) + self.WIDTH // 4
+        screen_y = start_y + (grid_y * (self.HEIGHT/2 + self.MARGIN)) + self.HEIGHT // 4
         return screen_x, screen_y
+
     
         
         
@@ -211,12 +229,18 @@ class RandomBoardTicTacToe:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                             # User clicks the mouse. Get the position
                             pos = pygame.mouse.get_pos()
-                            # Change the x/y screen coordinates to grid coordinates
-                            column = int(pos[0] // (self.WIDTH + self.MARGIN))
-                            row = int(pos[1] // (self.HEIGHT + self.MARGIN))
-                            # Calculate the center position of the cell
-                            center_x = (column * (self.WIDTH + self.MARGIN)) + self.WIDTH // 2
-                            center_y = (row * (self.HEIGHT + self.MARGIN)) + self.HEIGHT // 2
+
+                            # User clicks the mouse. Get the position
+                            pos = pygame.mouse.get_pos()
+
+                            start_x, start_y = self.findStartxy()
+
+                            column = int((pos[0] - start_x) // (self.WIDTH/2 + self.MARGIN))
+                            row = int((pos[1] - start_y) // (self.HEIGHT/2 + self.MARGIN))
+
+                            if column < self.GRID_SIZE and row < self.GRID_SIZE:
+                                center_x = start_x + (column * (self.WIDTH/2 + self.MARGIN)) + self.WIDTH // 4
+                                center_y = start_y + (row * (self.HEIGHT/2 + self.MARGIN)) + self.HEIGHT // 4
 
                             # Set that location to one
                             if self.cells[row][column] != 1 and self.cells[row][column] != 2:                       #check if cell is even open to play...
