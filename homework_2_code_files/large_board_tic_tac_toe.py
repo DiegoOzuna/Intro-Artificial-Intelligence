@@ -46,11 +46,11 @@ class RandomBoardTicTacToe:
         #THIS IS USED TO HAVE DATA IN GRID....
         self.cells = [[0 for _ in range(self.GRID_SIZE)] for _ in range(self.GRID_SIZE)]    #this will be used to communicate data
 
-        self.minimax = True    #if true, then we are using minimax, if false then we are using negamax
+        self.minimax = True   #if true, then we are using minimax, if false then we are using negamax
         
-        self.depth = 2         #default of depth is 2. Choice made is to make sure code can run in other environments
-                               #we can have gui change this value. for now, a good guess could be made from looking at 4 total steps
-                               #(2 from ai, 2 from human...)
+        self.depth = 4         #default of depth is 4. Choice made is to make sure code can run in other environments
+                               #we can have gui change this value. for now, a good guess could be made from looking at 8 total steps
+                               #(4 from ai, 4 from human...)
 
         # This sets the margin between each cell
         self.MARGIN = 5
@@ -90,7 +90,6 @@ class RandomBoardTicTacToe:
             pygame.display.set_caption("Tic Tac Toe - O's turn")
         else:
             pygame.display.set_caption("Tic Tac Toe - X's turn")
-        self.game_state.turn_O = not self.game_state.turn_O
 
 
     def draw_circle(self, screen, x, y):
@@ -144,11 +143,9 @@ class RandomBoardTicTacToe:
         #NOTE: move also changes current turn...
         self.move(bestmove)
         #Draw AI move at {bestmove} 
-        x, y = self.grid_to_screen(bestmove[0],bestmove[1]) #function translates grid coordinates to screen
-        if self.game_state.turn_O:
-            self.draw_circle(self.screen,x,y) #draw at calculated x and y
-        else:
-            self.draw_cross(self.screen,x,y) #draw at calculated x and y
+        x, y = self.grid_to_screen(bestmove[1],bestmove[0]) #function translates grid coordinates to screen
+        
+        self.draw_circle(self.screen,x,y) #draw at calculated x and y
         
         #update display
         pygame.display.update()
@@ -180,7 +177,7 @@ class RandomBoardTicTacToe:
             for col in range(self.GRID_SIZE):
                 self.cells[row][col] = 0
         
-        #May need to reset other game-related varaibles?????
+        
 
         pygame.display.update()
 
@@ -226,11 +223,11 @@ class RandomBoardTicTacToe:
                                 self.cells[row][column] = 1                             #user playing will leave value of 1
                                 self.draw_cross(self.screen, center_x, center_y)                                 #draw in cell user symbol...
                                 print("Click ", pos, "Grid coordinates: ", row, column)
-                                self.change_turn()
+                                self.game_state = self.game_state.get_new_state([row,column])
                                 
 
                                 ###############################
-                                for row in self.cells:
+                                for row in self.game_state.board_state:
                                     for cell in row:
                                         print(cell, end=' ')
                                     print()
@@ -241,10 +238,16 @@ class RandomBoardTicTacToe:
                 else:   
                     #AI TURN !!!!!!!!!!!!!
                     self.play_ai()
-                    
+                    ###############################
+                    print("AI Just busted a move!!")
+                    for row in self.cells:
+                        for cell in row:
+                            print(cell, end=' ')
+                        print()
+                    ###############################
 
-                    if(self.game_state.is_terminal()):
-                        done = True
+                if(self.game_state.is_terminal()):
+                    done = True
                     
                 
                 # if event.type == pygame.MOUSEBUTTONUP:
