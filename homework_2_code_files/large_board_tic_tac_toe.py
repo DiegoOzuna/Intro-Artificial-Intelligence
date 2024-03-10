@@ -34,7 +34,7 @@ class RandomBoardTicTacToe:
         self.RED = (255, 0, 0)
 
         # Grid Size
-        self.GRID_SIZE = 4
+        self.GRID_SIZE = 3
         self. OFFSET = 5
 
         self.CIRCLE_COLOR = (255, 0, 0)
@@ -94,6 +94,17 @@ class RandomBoardTicTacToe:
                                          html_text="Your Current Symbol: X",
                                          manager=self.manager)
         
+        self.boardSizeText = pygame_gui.elements.UITextBox(relative_rect=pygame.Rect((20, 140), (160, 50)),
+                                         html_text="Board Size: ",
+                                         manager=self.manager)
+        
+        # Add a dropdown menu for the user to select the board size
+        board_sizes = ['3x3', '4x4', '5x5', '6x6']  # Define the available board sizes
+        self.board_size_dropdown = pygame_gui.elements.UIDropDownMenu(options_list=board_sizes,
+                                                                    starting_option="3x3",
+                                                                    relative_rect=pygame.Rect((150, 140), (160, 50)),
+                                                                    manager=self.manager)
+        
         
         self.game_started = False
         self.game_reset()
@@ -123,7 +134,7 @@ class RandomBoardTicTacToe:
             self.ai_button.set_text('AI Type: Negamax')
 
     def symChangeCross(self):
-        if self.Playersym != 1:
+        if self.Playersym != 1: #alternate values of AI and Player
             self.Playersym = 1
             self.AIsym = 0
             self.showSYMchoice.html_text = "Your Current Symbol: X"
@@ -132,13 +143,29 @@ class RandomBoardTicTacToe:
             print("Already Draws cross")
     
     def symChangeCircle(self):
-        if self.Playersym != 0:
+        if self.Playersym != 0: #alternate values of AI and Player.
             self.Playersym = 0
             self.AIsym = 1
             self.showSYMchoice.html_text = "Your Current Symbol: O"
             self.showSYMchoice.rebuild() #resets the text
         else:
             print("Already Draws Circle")
+
+    def changeGrid(self, textDimension):
+        if textDimension == '3x3':
+            self.GRID_SIZE = 3
+        elif textDimension == '4x4':
+            self.GRID_SIZE = 4
+        elif textDimension == '5x5':
+            self.GRID_SIZE = 5
+        elif textDimension == '6x6':
+            self.GRID_SIZE = 6
+        
+        #this must be done here to have board change without expanding out of small window given
+        self.WIDTH = self.size[0] / self.GRID_SIZE - self.OFFSET
+        self.HEIGHT = self.size[1] / self.GRID_SIZE - self.OFFSET
+        self.game_reset()  # Reset the game with the new board size
+
     #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     
     #this function is meant to safely exit out the game...
@@ -293,9 +320,8 @@ class RandomBoardTicTacToe:
         BOARD STATE
         """
         #Reset the cells to value 0 
-        for row in range(self.GRID_SIZE):
-            for col in range(self.GRID_SIZE):
-                self.cells[row][col] = 0
+        #Reset the cells to match the new GRID_SIZE
+        self.cells = [[0 for _ in range(self.GRID_SIZE)] for _ in range(self.GRID_SIZE)]
         #Reinitialize the game state
         self.game_state = GameStatus(self.cells, True, self.GRID_SIZE) if self.game_started else GameStatus(self.cells, False, self.GRID_SIZE)
         #Draw the reset game board
@@ -338,7 +364,12 @@ class RandomBoardTicTacToe:
                 """
 
                 if event.type == pygame.USEREVENT:
-                    if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.user_type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED: #check UI_element drop down menu; based on what is selected, restart game and redraw grid
+                        if event.ui_element == self.board_size_dropdown:
+                            selected_size = event.text
+                            self.changeGrid(selected_size)
+                          
+                    elif event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                         if event.ui_element == self.button_cross:
                             self.symChangeCross()
                         if event.ui_element == self.button_circle:
@@ -347,6 +378,7 @@ class RandomBoardTicTacToe:
                             self.changeAI()   #change the ai mode
                         if event.ui_element == self.start_button:
                             self.start_game() #start the game
+                        
             
 
                 if self.game_started:
