@@ -100,6 +100,10 @@ class RandomBoardTicTacToe:
                                          html_text="Board Size: ",
                                          manager=self.manager)
         
+        self.showSCORE = pygame_gui.elements.UITextBox(relative_rect=pygame.Rect((350, 140), (160, 50)),
+                                         html_text="Score: 0",
+                                         manager=self.manager)
+        
         # Add a dropdown menu for the user to select the board size
         board_sizes = ['3x3', '4x4', '5x5', '6x6']  # Define the available board sizes
         self.board_size_dropdown = pygame_gui.elements.UIDropDownMenu(options_list=board_sizes,
@@ -125,7 +129,7 @@ class RandomBoardTicTacToe:
             self.game_state = GameStatus(self.cells, self.game_started, self.GRID_SIZE)
             self.start_button.set_text('Stop and Reset')
             self.draw_game()
-
+    #allows user to change ai type
     def changeAI(self):
         self.minimax = not self.minimax
 
@@ -134,7 +138,7 @@ class RandomBoardTicTacToe:
             self.ai_button.set_text('AI Type: Minimax')
         else:
             self.ai_button.set_text('AI Type: Negamax')
-
+    #allows user to change symbols
     def symChangeCross(self):
         if self.Playersym != 1: #alternate values of AI and Player
             self.Playersym = 1
@@ -143,7 +147,7 @@ class RandomBoardTicTacToe:
             self.showSYMchoice.rebuild() #resets the text
         else:
             print("Already Draws cross")
-    
+    #allows user to change symbols
     def symChangeCircle(self):
         if self.Playersym != 0: #alternate values of AI and Player.
             self.Playersym = 0
@@ -152,7 +156,7 @@ class RandomBoardTicTacToe:
             self.showSYMchoice.rebuild() #resets the text
         else:
             print("Already Draws Circle")
-
+    #allows user to change grid size
     def changeGrid(self, textDimension):
         if textDimension == '3x3':
             self.GRID_SIZE = 3
@@ -178,6 +182,10 @@ class RandomBoardTicTacToe:
             self.currentMode.set_text('current mode: player_vs_ai')
         
         self.game_reset() #reset the gameboard for pvp
+    
+    def updateScore(self, score):
+        self.showSCORE.set_text(f'Score: {score}')
+        
 
     #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     
@@ -293,6 +301,7 @@ class RandomBoardTicTacToe:
                 self.draw_symbol(self.screen,center_x,center_y,sym) #draw at calculated x and y, pass current Playersym choice                                 #draw in cell user symbol...
                 print("Click ", pos, "Grid coordinates: ", row, column)
                 self.game_state = self.game_state.get_new_state([row,column])
+                self.updateScore(self.game_state.get_scores(False)) #update scoreboard
             else:
                 print("This cell has a value!")
                                         
@@ -336,7 +345,7 @@ class RandomBoardTicTacToe:
         x, y = self.grid_to_screen(bestmove[1],bestmove[0]) #function translates grid coordinates to screen
         
         self.draw_symbol(self.screen,x,y,self.AIsym) #draw at calculated x and y, pass current AIsym choice
-        
+        self.updateScore(score) #update scoreboard
         #update display
         pygame.display.update()
        
