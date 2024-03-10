@@ -77,9 +77,16 @@ class RandomBoardTicTacToe:
         pygame.init()
         self.screen = pygame.display.set_mode(self.size)
         pygame.display.set_caption("Tic Tac Toe Random Grid")
-        self.screen.fill(self.BLACK)
+        self.screen.fill(self.WHITE)
 
         start_x, start_y = self.findStartxy()
+
+        # Calculate the width and height of the grid
+        grid_width = self.GRID_SIZE * (self.MARGIN + self.WIDTH/2)
+        grid_height = self.GRID_SIZE * (self.MARGIN + self.HEIGHT/2)
+
+        # Draw a black rectangle behind the grid
+        pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(start_x-2, start_y-2, grid_width, grid_height))
 
         # Draw the grid
         for row in range(self.GRID_SIZE):
@@ -229,36 +236,35 @@ class RandomBoardTicTacToe:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                             # User clicks the mouse. Get the position
                             pos = pygame.mouse.get_pos()
-
-                            # User clicks the mouse. Get the position
-                            pos = pygame.mouse.get_pos()
-
+                            #Retrieve the location of the grid...
                             start_x, start_y = self.findStartxy()
-
+                            #calculate the size of each cell...
                             column = int((pos[0] - start_x) // (self.WIDTH/2 + self.MARGIN))
                             row = int((pos[1] - start_y) // (self.HEIGHT/2 + self.MARGIN))
 
-                            if column < self.GRID_SIZE and row < self.GRID_SIZE:
+                            if 0 <= column < self.GRID_SIZE and 0 <= row < self.GRID_SIZE:
                                 center_x = start_x + (column * (self.WIDTH/2 + self.MARGIN)) + self.WIDTH // 4
                                 center_y = start_y + (row * (self.HEIGHT/2 + self.MARGIN)) + self.HEIGHT // 4
 
-                            # Set that location to one
-                            if self.cells[row][column] != 1 and self.cells[row][column] != 2:                       #check if cell is even open to play...
-                                self.cells[row][column] = 1                             #user playing will leave value of 1
-                                self.draw_cross(self.screen, center_x, center_y)                                 #draw in cell user symbol...
-                                print("Click ", pos, "Grid coordinates: ", row, column)
-                                self.game_state = self.game_state.get_new_state([row,column])
+                                # Set that location to one
+                                if self.cells[row][column] != 1 and self.cells[row][column] != 2:                       #check if cell is even open to play...
+                                    self.cells[row][column] = 1                             #user playing will leave value of 1
+                                    self.draw_cross(self.screen, center_x, center_y)                                 #draw in cell user symbol...
+                                    print("Click ", pos, "Grid coordinates: ", row, column)
+                                    self.game_state = self.game_state.get_new_state([row,column])
                                 
 
-                                ###############################
-                                for row in self.game_state.board_state:
-                                    for cell in row:
-                                        print(cell, end=' ')
-                                    print()
-                                ###############################
+                                    ###############################
+                                    for row in self.game_state.board_state:
+                                        for cell in row:
+                                            print(cell, end=' ')
+                                        print()
+                                    ###############################
+                                else:
+                                    print("This cell alrady has a value...") 
 
                             else:
-                                print("This cell already has a value !")    #maybe make this a popup after reading further documentation.
+                                print("Your clicking empty space?")    #maybe make this a popup after reading further documentation.
                 else:   
                     #AI TURN !!!!!!!!!!!!!
                     self.play_ai()
