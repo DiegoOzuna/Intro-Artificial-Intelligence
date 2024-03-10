@@ -7,52 +7,53 @@ def minimax(game_state: GameStatus, depth: int, maximizingPlayer: bool, alpha=fl
         newScores = game_state.get_scores(terminal) #if it is, then grab the scores and return (will propagate back up)
         return newScores, None   #return value, no move
         
+    
     if maximizingPlayer:
-        maxEval = float('-inf')    #AI tries to find the optimal moves that the player would make, (looking for positives)
-        bestMove = None
-		
-        for move in game_state.get_moves(): #look at each possible move (ie, each position with 0)
+        bestEval = float('-inf')    #AI tries to find the optimal moves that the player would make, (looking for positives)
+        possible_moves = game_state.get_moves()
+        for move in possible_moves: #look at each possible move (ie, each position with 0)
            
             new_state = game_state.get_new_state(move) #grab and store that state in m...
             eval, _ = minimax(new_state, depth-1, False, alpha, beta) #run minimax on that gamestate...
             new_state.undo_move(move) #then undo that move done in the gamestate
-            if eval > maxEval: #if the eval is better than our max, reassign both the eval and the bestmove...
+            if eval > bestEval: #if the eval is better than our max, reassign both the eval and the bestmove...
                 print(f"eval > maxEval.. reassigning maxEval, bestMove")
-                maxEval = eval
+                bestEval = eval
                 bestMove = move
             ###############################
-            print(f"BestMove, maxEval:  ({bestMove},{maxEval})")
+            print(f"BestMove, maxEval:  ({bestMove},{bestEval})")
             ################################
+            
+
+            #if beta is found to be lower than eval, we prune
+            if eval >= beta:
+                  break    
             
             #set alpha to the max value
             alpha = max(alpha, eval)
-
-            #if beta is found to be lower than alpha, we prune
-            if beta <= alpha:
-                  break    
             
-        return maxEval, bestMove   #return value and best move
     else:
-        minEval = float('inf')  #AI tries to find the optimal moves that would lower player score (looking for negatives)
-        bestMove = None
-        for move in game_state.get_moves(): #look at each possible move (ie, each position with 0)
+        bestEval = float('inf')  #AI tries to find the optimal moves that would lower player score (looking for negatives)
+        possible_moves = game_state.get_moves()
+        for move in possible_moves: #look at each possible move (ie, each position with 0)
 
             new_state = game_state.get_new_state(move) 
             eval, _ = minimax(new_state, depth-1, True, alpha, beta)   #run minimax on that gamestate...
             new_state.undo_move(move) #then undo that move done in the gamestate
-            if eval < minEval: #if the eval is lower than our min, reassign both the eval and the bestmove...
+            if eval < bestEval: #if the eval is lower than our min, reassign both the eval and the bestmove...
                 print(f"eval > minEval.. reassigning minEval, bestMove")
-                minEval = eval
+                bestEval = eval
                 bestMove = move
             ###############################
-            print(f"BestMove, minEval:  ({bestMove},{minEval})")
+            print(f"BestMove, minEval:  ({bestMove},{bestEval})")
             ################################
             
             #if beta is found to be lower than alpha, we prune
-            beta = min(beta, eval)
-            if beta <= alpha:
+            if eval <= alpha:
                  break
-        return minEval, bestMove     #return value and best move
+            
+            beta = min(beta, eval)
+    return bestEval, bestMove     #return value and best move
 
 
 
@@ -60,9 +61,10 @@ def minimax(game_state: GameStatus, depth: int, maximizingPlayer: bool, alpha=fl
 
 
 def negamax(game_status: GameStatus, depth: int, turn_multiplier: int, alpha=float('-inf'), beta=float('inf')):
+    #first we check if game is terminal or depth is 0...
     terminal = game_status.is_terminal()
     if depth == 0 or terminal:
-        scores = game_status.get_negamax_scores(terminal)
+        scores = game_status.get_negamax_scores(terminal) #grab the scores and return (will propagate back up)
         return scores, None
     
     best_move = None
