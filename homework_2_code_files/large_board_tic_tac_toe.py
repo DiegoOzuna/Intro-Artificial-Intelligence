@@ -57,6 +57,8 @@ class RandomBoardTicTacToe:
         self.depth = 4         #default of depth is 4. Choice made is to make sure code can run in other environments
                                #we can have gui change this value. for now, a good guess could be made from looking at 8 total steps
                                #(4 from ai, 4 from human...)
+        
+        self.playersMode = False        #if mode is false, then its player v ai if its true then its player v player
 
         # This sets the margin between each cell
         self.MARGIN = 5
@@ -78,7 +80,7 @@ class RandomBoardTicTacToe:
                                                         manager=self.manager)
         
         self.currentMode = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((240, 20), (300, 50)),
-                                                         text='Current Mode: AI',
+                                                         text='current mode: player_vs_ai',
                                                          manager=self.manager)
         
         self.ai_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((240, 80), (300, 50)),
@@ -165,6 +167,17 @@ class RandomBoardTicTacToe:
         self.WIDTH = self.size[0] / self.GRID_SIZE - self.OFFSET
         self.HEIGHT = self.size[1] / self.GRID_SIZE - self.OFFSET
         self.game_reset()  # Reset the game with the new board size
+    
+    #this will let user toggle if they want to play with another player or switch back
+    def togglePvP(self):
+        if self.playersMode != True:
+            self.playersMode = True
+            self.currentMode.set_text('current mode: player_vs_player')
+        else:
+            self.playersMode = False
+            self.currentMode.set_text('current mode: player_vs_ai')
+        
+        self.game_reset() #reset the gameboard for pvp
 
     #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     
@@ -260,6 +273,37 @@ class RandomBoardTicTacToe:
 
     def move(self, move):
         self.game_state = self.game_state.get_new_state(move)
+
+    def play_human(self, pos, sym):
+        #Retrieve the location of the grid...
+        start_x, start_y = self.findStartxy()
+        #calculate the size of each cell...
+        column = int((pos[0] - start_x) // (self.WIDTH/2 + self.MARGIN))
+        row = int((pos[1] - start_y) // (self.HEIGHT/2 + self.MARGIN))
+        #######################################################################################################
+        ## Ensure that the user clicked position was inside the grid location before doing anything else.... ##
+        #######################################################################################################
+        if 0 <= column < self.GRID_SIZE and 0 <= row < self.GRID_SIZE:
+            center_x = start_x + (column * (self.WIDTH/2 + self.MARGIN)) + self.WIDTH // 4
+            center_y = start_y + (row * (self.HEIGHT/2 + self.MARGIN)) + self.HEIGHT // 4
+
+            # Set that location to one
+            if self.cells[row][column] != 1 and self.cells[row][column] != 2:                       #check if cell is even open to play...
+                self.cells[row][column] = 1                             #user playing will leave value of 1
+                self.draw_symbol(self.screen,center_x,center_y,sym) #draw at calculated x and y, pass current Playersym choice                                 #draw in cell user symbol...
+                print("Click ", pos, "Grid coordinates: ", row, column)
+                self.game_state = self.game_state.get_new_state([row,column])
+            else:
+                print("This cell has a value!")
+                                        
+                ###############################
+                for row in self.game_state.board_state:
+                    for cell in row:
+                        print(cell, end=' ')
+                    print()
+                ###############################
+        else:
+            print("Your clicking empty space?")    #maybe make this a popup after reading further documentation.
 
 
     def play_ai(self):
@@ -372,52 +416,24 @@ class RandomBoardTicTacToe:
                     elif event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                         if event.ui_element == self.button_cross:
                             self.symChangeCross()
-                        if event.ui_element == self.button_circle:
+                        elif event.ui_element == self.button_circle:
                             self.symChangeCircle()
-                        if event.ui_element == self.ai_button:
+                        elif event.ui_element == self.ai_button:
                             self.changeAI()   #change the ai mode
-                        if event.ui_element == self.start_button:
+                        elif event.ui_element == self.start_button:
                             self.start_game() #start the game
+                        elif event.ui_element == self.currentMode:
+                            self.togglePvP()
                         
             
 
                 if self.game_started:
-                    if mode == "player_vs_ai":
+                    if self.playersMode == False:
                         if self.game_state.turn_O == True:
                             if event.type == pygame.MOUSEBUTTONDOWN:
                                 # User clicks the mouse. Get the position
                                 pos = pygame.mouse.get_pos()
-                                #Retrieve the location of the grid...
-                                start_x, start_y = self.findStartxy()
-                                #calculate the size of each cell...
-                                column = int((pos[0] - start_x) // (self.WIDTH/2 + self.MARGIN))
-                                row = int((pos[1] - start_y) // (self.HEIGHT/2 + self.MARGIN))
-                                #######################################################################################################
-                                ## Ensure that the user clicked position was inside the grid location before doing anything else.... ##
-                                #######################################################################################################
-                                if 0 <= column < self.GRID_SIZE and 0 <= row < self.GRID_SIZE:
-                                    center_x = start_x + (column * (self.WIDTH/2 + self.MARGIN)) + self.WIDTH // 4
-                                    center_y = start_y + (row * (self.HEIGHT/2 + self.MARGIN)) + self.HEIGHT // 4
-
-                                    # Set that location to one
-                                    if self.cells[row][column] != 1 and self.cells[row][column] != 2:                       #check if cell is even open to play...
-                                        self.cells[row][column] = 1                             #user playing will leave value of 1
-                                        self.draw_symbol(self.screen,center_x,center_y,self.Playersym) #draw at calculated x and y, pass current Playersym choice                                 #draw in cell user symbol...
-                                        print("Click ", pos, "Grid coordinates: ", row, column)
-                                        self.game_state = self.game_state.get_new_state([row,column])
-                                        
-
-                                        ###############################
-                                        for row in self.game_state.board_state:
-                                            for cell in row:
-                                                print(cell, end=' ')
-                                            print()
-                                        ###############################
-                                    else:
-                                        print("This cell alrady has a value...") 
-
-                                else:
-                                    print("Your clicking empty space?")    #maybe make this a popup after reading further documentation.
+                                self.play_human(pos, self.Playersym)
                         else:   
                             #AI TURN !!!!!!!!!!!!!
                             self.play_ai()
@@ -432,6 +448,19 @@ class RandomBoardTicTacToe:
                         if(self.game_state.is_terminal()):
                             done = True
                     
+                    if self.playersMode == True:
+                        if self.game_state.turn_O == True:
+                            if event.type == pygame.MOUSEBUTTONDOWN:
+                                # User clicks the mouse. Get the position
+                                pos = pygame.mouse.get_pos()
+                                self.play_human(pos, self.Playersym)
+                        else:
+                            if event.type == pygame.MOUSEBUTTONDOWN:
+                                pos = pygame.mouse.get_pos()
+                                self.play_human(pos, self.AIsym)
+
+                        if(self.game_state.is_terminal()):
+                            done = True
                 
                 # if event.type == pygame.MOUSEBUTTONUP:
                     # Get the position
