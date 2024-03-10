@@ -16,6 +16,7 @@ PLEASE READ THE COMMENTS BELOW AND THE HOMEWORK DESCRIPTION VERY CAREFULLY BEFOR
 """
 import pygame
 import numpy as np
+import pygame_gui
 from GameStatus_5120 import GameStatus
 from multiAgents import minimax, negamax
 import sys, random
@@ -33,7 +34,7 @@ class RandomBoardTicTacToe:
         self.RED = (255, 0, 0)
 
         # Grid Size
-        self.GRID_SIZE = 3
+        self.GRID_SIZE = 4
         self. OFFSET = 5
 
         self.CIRCLE_COLOR = (255, 0, 0)
@@ -57,7 +58,66 @@ class RandomBoardTicTacToe:
 
         # Initialize pygame
         pygame.init()
+        
+        
+        
+        #Initialize pygame_gui manager
+        self.manager = pygame_gui.UIManager(size)
+        
+        #Create button instances for the menu...
+        self.button_naught = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((20, 20), (100, 50)),
+                                                  text='Naught',
+                                                  manager=self.manager)
+        self.button_cross = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((130, 20), (100, 50)),
+                                                        text='Cross',
+                                                        manager=self.manager)
+        
+        self.currentMode = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((240, 20), (300, 50)),
+                                                         text='Current Mode: AI',
+                                                         manager=self.manager)
+        
+        self.ai_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((240, 80), (300, 50)),
+                                                         text='AI Type: Minimax',
+                                                         manager=self.manager)
+        
+        self.start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((146, 200), (300, 50)),
+                                                         text='Start',
+                                                         manager=self.manager,)
+        
+        
+        self.game_started = False
         self.game_reset()
+
+    #THIS SECTION (SURROUNDED BY $) IS ALL ABOUT FUNCTIONS FOR THE BUTTONS....
+    #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    def start_game(self):
+        if self.game_started:
+            # Reset the game and change the button text to 'Start'
+            self.game_reset()
+            self.game_started = False
+            self.start_button.set_text('Start')
+        else:
+            # Start the game
+            self.game_started = True
+            self.game_state = GameStatus(self.cells, self.game_started, self.GRID_SIZE)
+            self.start_button.set_text('Stop and Reset')
+            self.draw_game()
+
+    def changeAI(self):
+        self.minimax = not self.minimax
+
+        #Update the text on the button to reflect the current AI algorithm selection
+        if self.minimax:
+            self.ai_button.set_text('AI Type: Minimax')
+        else:
+            self.ai_button.set_text('AI Type: Negamax')
+    #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    
+    #this function is meant to safely exit out the game...
+    def cleanup(self):
+        self.manager.clear_and_reset
+        self.manager = None
+        pygame.quit()
 
     def findStartxy(self):
         #purpose of this function is ot grab the screen and make a smaller window for our grid to be located in
@@ -100,10 +160,11 @@ class RandomBoardTicTacToe:
                                 self.HEIGHT/2])
 
         
-        """
-        YOUR CODE HERE TO DRAW THE GRID OTHER CONTROLS AS PART OF THE GUI
-        """
-        
+        # Update and draw the UI elements
+        if self.manager:
+            self.manager.update(0)
+            self.manager.draw_ui(self.screen)
+
         pygame.display.update()
 
     def change_turn(self):
@@ -192,7 +253,6 @@ class RandomBoardTicTacToe:
         
 
     def game_reset(self):
-        self.draw_game()
         """ 
         YOUR CODE HERE TO RESET THE BOARD TO VALUE 0 FOR ALL CELLS AND CREATE A NEW GAME STATE WITH NEWLY INITIALIZED
         BOARD STATE
@@ -201,6 +261,10 @@ class RandomBoardTicTacToe:
         for row in range(self.GRID_SIZE):
             for col in range(self.GRID_SIZE):
                 self.cells[row][col] = 0
+        #Reinitialize the game state
+        self.game_state = GameStatus(self.cells, True, self.GRID_SIZE) if self.game_started else GameStatus(self.cells, False, self.GRID_SIZE)
+        #Draw the reset game board
+        self.draw_game()
         
         
 
@@ -209,15 +273,20 @@ class RandomBoardTicTacToe:
     def play_game(self, mode = "player_vs_ai"):
         done = False
 
-        clock = pygame.time.Clock()
-
         # Create a GameStatus object
         self.game_state = GameStatus(tictactoegame.cells, True, self.GRID_SIZE)  # True if it's O's turn, False if it's X's turn
 
 
         while not done:
+            # Update and draw the UI elements
             
-            for event in pygame.event.get():  # User did something
+            for event in pygame.event.get():  # User does something
+                
+                if self.manager: #keep our UI refreshed for menu
+                    self.manager.process_events(event)
+                    self.manager.update(0)
+                    self.manager.draw_ui(self.screen)
+
                 if event.type == pygame.QUIT:  # If user clicked close
                     done = True  # Flag that we are done so we exit this loop
                 
@@ -232,52 +301,67 @@ class RandomBoardTicTacToe:
                 DRAW CROSS (OR NOUGHT DEPENDING ON WHICH SYMBOL YOU CHOSE FOR YOURSELF FROM THE gui) AND CALL YOUR 
                 PLAY_AI FUNCTION TO LET THE AGENT PLAY AGAINST YOU
                 """
-                if self.game_state.turn_O == True:
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                            # User clicks the mouse. Get the position
-                            pos = pygame.mouse.get_pos()
-                            #Retrieve the location of the grid...
-                            start_x, start_y = self.findStartxy()
-                            #calculate the size of each cell...
-                            column = int((pos[0] - start_x) // (self.WIDTH/2 + self.MARGIN))
-                            row = int((pos[1] - start_y) // (self.HEIGHT/2 + self.MARGIN))
 
-                            if 0 <= column < self.GRID_SIZE and 0 <= row < self.GRID_SIZE:
-                                center_x = start_x + (column * (self.WIDTH/2 + self.MARGIN)) + self.WIDTH // 4
-                                center_y = start_y + (row * (self.HEIGHT/2 + self.MARGIN)) + self.HEIGHT // 4
+                if event.type == pygame.USEREVENT:
+                    if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                        if event.ui_element == self.button_naught:
+                            print("Hello Naught")
+                        if event.ui_element == self.ai_button:
+                            self.changeAI()   #change the ai mode
+                        if event.ui_element == self.start_button:
+                            self.start_game() #start the game
+            
 
-                                # Set that location to one
-                                if self.cells[row][column] != 1 and self.cells[row][column] != 2:                       #check if cell is even open to play...
-                                    self.cells[row][column] = 1                             #user playing will leave value of 1
-                                    self.draw_cross(self.screen, center_x, center_y)                                 #draw in cell user symbol...
-                                    print("Click ", pos, "Grid coordinates: ", row, column)
-                                    self.game_state = self.game_state.get_new_state([row,column])
-                                
+                if self.game_started:
+                    if mode == "player_vs_ai":
+                        if self.game_state.turn_O == True:
+                            if event.type == pygame.MOUSEBUTTONDOWN:
+                                # User clicks the mouse. Get the position
+                                pos = pygame.mouse.get_pos()
+                                #Retrieve the location of the grid...
+                                start_x, start_y = self.findStartxy()
+                                #calculate the size of each cell...
+                                column = int((pos[0] - start_x) // (self.WIDTH/2 + self.MARGIN))
+                                row = int((pos[1] - start_y) // (self.HEIGHT/2 + self.MARGIN))
+                                #######################################################################################################
+                                ## Ensure that the user clicked position was inside the grid location before doing anything else.... ##
+                                #######################################################################################################
+                                if 0 <= column < self.GRID_SIZE and 0 <= row < self.GRID_SIZE:
+                                    center_x = start_x + (column * (self.WIDTH/2 + self.MARGIN)) + self.WIDTH // 4
+                                    center_y = start_y + (row * (self.HEIGHT/2 + self.MARGIN)) + self.HEIGHT // 4
 
-                                    ###############################
-                                    for row in self.game_state.board_state:
-                                        for cell in row:
-                                            print(cell, end=' ')
-                                        print()
-                                    ###############################
+                                    # Set that location to one
+                                    if self.cells[row][column] != 1 and self.cells[row][column] != 2:                       #check if cell is even open to play...
+                                        self.cells[row][column] = 1                             #user playing will leave value of 1
+                                        self.draw_cross(self.screen, center_x, center_y)                                 #draw in cell user symbol...
+                                        print("Click ", pos, "Grid coordinates: ", row, column)
+                                        self.game_state = self.game_state.get_new_state([row,column])
+                                        
+
+                                        ###############################
+                                        for row in self.game_state.board_state:
+                                            for cell in row:
+                                                print(cell, end=' ')
+                                            print()
+                                        ###############################
+                                    else:
+                                        print("This cell alrady has a value...") 
+
                                 else:
-                                    print("This cell alrady has a value...") 
+                                    print("Your clicking empty space?")    #maybe make this a popup after reading further documentation.
+                        else:   
+                            #AI TURN !!!!!!!!!!!!!
+                            self.play_ai()
+                            ###############################
+                            print("AI Just busted a move!!")
+                            for row in self.cells:
+                                for cell in row:
+                                    print(cell, end=' ')
+                                print()
+                            ###############################
 
-                            else:
-                                print("Your clicking empty space?")    #maybe make this a popup after reading further documentation.
-                else:   
-                    #AI TURN !!!!!!!!!!!!!
-                    self.play_ai()
-                    ###############################
-                    print("AI Just busted a move!!")
-                    for row in self.cells:
-                        for cell in row:
-                            print(cell, end=' ')
-                        print()
-                    ###############################
-
-                if(self.game_state.is_terminal()):
-                    done = True
+                        if(self.game_state.is_terminal()):
+                            done = True
                     
                 
                 # if event.type == pygame.MOUSEBUTTONUP:
@@ -293,7 +377,7 @@ class RandomBoardTicTacToe:
             # Update the screen with what was drawn.
             pygame.display.update()
 
-        pygame.quit()
+        self.cleanup()
 
 tictactoegame = RandomBoardTicTacToe()
 
