@@ -89,6 +89,11 @@ class RandomBoardTicTacToe:
                                                          text='Start',
                                                          manager=self.manager,)
         
+        #Creating text for user to see feedback
+        self.showSYMchoice = pygame_gui.elements.UITextBox(relative_rect=pygame.Rect((20, 80), (215, 50)),
+                                         html_text="Your Current Symbol: X",
+                                         manager=self.manager)
+        
         
         self.game_started = False
         self.game_reset()
@@ -121,6 +126,8 @@ class RandomBoardTicTacToe:
         if self.Playersym != 1:
             self.Playersym = 1
             self.AIsym = 0
+            self.showSYMchoice.html_text = "Your Current Symbol: X"
+            self.showSYMchoice.rebuild() #resets the text
         else:
             print("Already Draws cross")
     
@@ -128,6 +135,8 @@ class RandomBoardTicTacToe:
         if self.Playersym != 0:
             self.Playersym = 0
             self.AIsym = 1
+            self.showSYMchoice.html_text = "Your Current Symbol: O"
+            self.showSYMchoice.rebuild() #resets the text
         else:
             print("Already Draws Circle")
     #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
