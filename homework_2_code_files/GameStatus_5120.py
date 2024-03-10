@@ -46,28 +46,20 @@ class GameStatus:
 		for i in range(rows):
 			for j in range(cols - 2):
 				if self.board_state[i][j] == self.board_state[i][j+1] == self.board_state[i][j+2]:
-					try:
 						scores[self.board_state[i][j]] += 1      #update player score if a 3 consecutive pair was found in rows
-					except KeyError:
-						print(f'Key: {self.board_state[i][j]} does not exist')
 
 		#Check for Cols
 		for j in range(cols):
 			for i in range(rows - 2):
 				if self.board_state[i][j] == self.board_state[i+1][j] == self.board_state[i+2][j]:
-					try:
 						scores[self.board_state[i][j]] += 1      #update player score if a 3 consecutive pair was found in rows
-					except KeyError:
-						print(f'Key: {self.board_state[i][j]} does not exist')
 	
 		#Check for diagonal lines: top left to bottom right
 		for i in range(rows-2):
 			for j in range(cols -2):
 				if self.board_state[i][j] == self.board_state[i+1][j+1] == self.board_state[i+2][j+2]:
-					try:
 						scores[self.board_state[i][j]] += 1      #update player score if a 3 consecutive pair was found in rows
-					except KeyError:
-						print(f'Key: {self.board_state[i][j]} does not exist')
+
 		#Diagonal lines: bottom left to top right
 		for i in range(2,rows):
 			for j in range(cols -2):
@@ -79,7 +71,7 @@ class GameStatus:
 
 						
 		
-		return scores[1] - scores[2]   #return the difference between player and ai (0 is draw, +num is player won, -num is ai won)
+		return -scores[2] + scores[1]   #return the difference between player and ai (0 is draw, +num is player won, -num is ai won)
 	    
 
 	def get_negamax_scores(self, terminal):
@@ -98,36 +90,28 @@ class GameStatus:
 		for i in range(rows):
 			for j in range(cols - 2):
 				if self.board_state[i][j] == self.board_state[i][j+1] == self.board_state[i][j+2]:
-					try:
-						scores[self.board_state[i][j]] += 100      #update player score if a 3 consecutive pair was found in rows
-					except KeyError:
-						print(f'Key: {self.board_state[i][j]} does not exist')
+					scores[self.board_state[i][j]] += 100      #update player score if a 3 consecutive pair was found in rows
+					
 
 		#Check for Cols
 		for j in range(cols):
 			for i in range(rows - 2):
 				if self.board_state[i][j] == self.board_state[i+1][j] == self.board_state[i+2][j]:
-					try:
-						scores[self.board_state[i][j]] += 100      #update player score if a 3 consecutive pair was found in rows
-					except KeyError:
-						print(f'Key: {self.board_state[i][j]} does not exist')
+					scores[self.board_state[i][j]] += 100      #update player score if a 3 consecutive pair was found in rows
 	
 		#Check for diagonal lines: top left to bottom right
 		for i in range(rows-2):
 			for j in range(cols -2):
 				if self.board_state[i][j] == self.board_state[i+1][j+1] == self.board_state[i+2][j+2]:
-					try:
-						scores[self.board_state[i][j]] += 100      #update player score if a 3 consecutive pair was found in rows
-					except KeyError:
-						print(f'Key: {self.board_state[i][j]} does not exist')
+					scores[self.board_state[i][j]] += 100      #update player score if a 3 consecutive pair was found in rows
+					
+	
 		#Diagonal lines: bottom left to top right
 		for i in range(2,rows):
 			for j in range(cols -2):
 				if self.board_state[i][j] == self.board_state[i-1][j+1] == self.board_state[i-2][j+2]:
-					try:
-						scores[self.board_state[i][j]] += 100      #update player score if a 3 consecutive pair was found in rows
-					except KeyError:
-						print(f'Key: {self.board_state[i][j]} does not exist')
+					scores[self.board_state[i][j]] += 100      #update player score if a 3 consecutive pair was found in rows
+					
 
 		
 		return -scores[2] + scores[1]   #return the difference between ai and player (0 is draw, +num is player won, -num is ai won)
