@@ -40,6 +40,11 @@ class RandomBoardTicTacToe:
         self.CIRCLE_COLOR = (255, 0, 0)
         self.CROSS_COLOR = (0, 0, 255)
 
+        #Keeping track of what symbol represents the ai and the player for later functions
+        # 0 is circle 1 is cross....
+        self.AIsym = 0
+        self.Playersym = 1
+
         # This sets the WIDTH and HEIGHT of each grid location
         self.WIDTH = self.size[0]/self.GRID_SIZE - self.OFFSET
         self.HEIGHT = self.size[1]/self.GRID_SIZE - self.OFFSET
@@ -65,11 +70,11 @@ class RandomBoardTicTacToe:
         self.manager = pygame_gui.UIManager(size)
         
         #Create button instances for the menu...
-        self.button_naught = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((20, 20), (100, 50)),
-                                                  text='Naught',
+        self.button_cross = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((20, 20), (100, 50)),
+                                                  text='Cross',
                                                   manager=self.manager)
-        self.button_cross = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((130, 20), (100, 50)),
-                                                        text='Cross',
+        self.button_circle = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((130, 20), (100, 50)),
+                                                        text='Circle',
                                                         manager=self.manager)
         
         self.currentMode = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((240, 20), (300, 50)),
@@ -111,6 +116,20 @@ class RandomBoardTicTacToe:
             self.ai_button.set_text('AI Type: Minimax')
         else:
             self.ai_button.set_text('AI Type: Negamax')
+
+    def symChangeCross(self):
+        if self.Playersym != 1:
+            self.Playersym = 1
+            self.AIsym = 0
+        else:
+            print("Already Draws cross")
+    
+    def symChangeCircle(self):
+        if self.Playersym != 0:
+            self.Playersym = 0
+            self.AIsym = 1
+        else:
+            print("Already Draws Circle")
     #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     
     #this function is meant to safely exit out the game...
@@ -184,7 +203,14 @@ class RandomBoardTicTacToe:
         size = min(self.WIDTH, self.HEIGHT) // 4  # Adjust the value as needed
         pygame.draw.line(screen, self.CROSS_COLOR, (x - size, y - size), (x + size, y + size), 5)
         pygame.draw.line(screen, self.CROSS_COLOR, (x + size, y - size), (x - size, y + size), 5)
-        
+
+    #this function is meant for us to be able to alternate symbols based off user selection.
+    def draw_symbol(self, screen, x, y, mySym):
+        if mySym == 0:
+            self.draw_circle(screen, x, y)
+        else:
+            self.draw_cross(screen, x, y)
+
 
     def is_game_over(self):
 
@@ -229,7 +255,7 @@ class RandomBoardTicTacToe:
         #Draw AI move at {bestmove} 
         x, y = self.grid_to_screen(bestmove[1],bestmove[0]) #function translates grid coordinates to screen
         
-        self.draw_circle(self.screen,x,y) #draw at calculated x and y
+        self.draw_symbol(self.screen,x,y,self.AIsym) #draw at calculated x and y, pass current AIsym choice
         
         #update display
         pygame.display.update()
@@ -304,8 +330,10 @@ class RandomBoardTicTacToe:
 
                 if event.type == pygame.USEREVENT:
                     if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
-                        if event.ui_element == self.button_naught:
-                            print("Hello Naught")
+                        if event.ui_element == self.button_cross:
+                            self.symChangeCross()
+                        if event.ui_element == self.button_circle:
+                            self.symChangeCircle()
                         if event.ui_element == self.ai_button:
                             self.changeAI()   #change the ai mode
                         if event.ui_element == self.start_button:
@@ -333,7 +361,7 @@ class RandomBoardTicTacToe:
                                     # Set that location to one
                                     if self.cells[row][column] != 1 and self.cells[row][column] != 2:                       #check if cell is even open to play...
                                         self.cells[row][column] = 1                             #user playing will leave value of 1
-                                        self.draw_cross(self.screen, center_x, center_y)                                 #draw in cell user symbol...
+                                        self.draw_symbol(self.screen,center_x,center_y,self.Playersym) #draw at calculated x and y, pass current Playersym choice                                 #draw in cell user symbol...
                                         print("Click ", pos, "Grid coordinates: ", row, column)
                                         self.game_state = self.game_state.get_new_state([row,column])
                                         
