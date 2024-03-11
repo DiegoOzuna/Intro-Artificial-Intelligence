@@ -104,6 +104,10 @@ class RandomBoardTicTacToe:
                                          html_text="Score: 0",
                                          manager=self.manager)
         
+        self.WINNER = pygame_gui.elements.UITextBox(relative_rect=pygame.Rect((450, 200), (130, 50)),
+                                         html_text="Winner: ",
+                                         manager=self.manager)
+        
         # Add a dropdown menu for the user to select the board size
         board_sizes = ['3x3', '4x4', '5x5', '6x6']  # Define the available board sizes
         self.board_size_dropdown = pygame_gui.elements.UIDropDownMenu(options_list=board_sizes,
@@ -185,6 +189,10 @@ class RandomBoardTicTacToe:
     
     def updateScore(self, score):
         self.showSCORE.set_text(f'Score: {score}')
+
+    def updateWinner(self):
+        self.WINNER.set_text(self.game_state.winner)
+        self.game_reset()
         
 
     #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
@@ -455,7 +463,7 @@ class RandomBoardTicTacToe:
                             ###############################
 
                         if(self.game_state.is_terminal()):
-                            done = True
+                            self.updateWinner()
                     
                     if self.playersMode == True:
                         if self.game_state.turn_O == True:
@@ -469,7 +477,7 @@ class RandomBoardTicTacToe:
                                 self.play_human(pos, self.AIsym)
 
                         if(self.game_state.is_terminal()):
-                            done = True
+                            self.updateWinner()
                 
                 # if event.type == pygame.MOUSEBUTTONUP:
                     # Get the position

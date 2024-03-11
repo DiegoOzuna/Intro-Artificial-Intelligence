@@ -22,6 +22,12 @@ class GameStatus:
 		if no_zeros:
 			#Board is full
 			scores = self.get_scores(no_zeros)
+			if scores < 0:
+				self.winner = 'Winner: AI'
+			elif scores > 0:
+				self.winner = 'Winner: Human'
+			else:
+				self.winner = 'Winner: None'
 			print(scores)
 			return True
 		
