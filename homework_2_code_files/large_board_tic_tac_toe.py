@@ -275,16 +275,6 @@ class RandomBoardTicTacToe:
             self.draw_circle(screen, x, y)
         else:
             self.draw_cross(screen, x, y)
-
-
-    def is_game_over(self):
-
-        """
-        YOUR CODE HERE TO SEE IF THE GAME HAS TERMINATED AFTER MAKING A MOVE. YOU SHOULD USE THE IS_TERMINAL()
-        FUNCTION FROM GAMESTATUS_5120.PY FILE (YOU WILL FIRST NEED TO COMPLETE IS_TERMINAL() FUNCTION)
-        
-        YOUR RETURN VALUE SHOULD BE TRUE OR FALSE TO BE USED IN OTHER PARTS OF THE GAME
-        """
     
 
     def move(self, move):
@@ -362,7 +352,7 @@ class RandomBoardTicTacToe:
             #compute and display final scores
             scores = self.game_state.get_scores(terminal)
             print(f"Final Scores: {scores}") 
-        """ USE self.game_state.get_scores(terminal) HERE TO COMPUTE AND DISPLAY THE FINAL SCORES """
+       
         
     def grid_to_screen(self, grid_x, grid_y):
         # Translate grid coordinates to screen coordinates
@@ -430,7 +420,7 @@ class RandomBoardTicTacToe:
                             selected_size = event.text
                             self.changeGrid(selected_size)
                           
-                    elif event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                    elif event.user_type == pygame_gui.UI_BUTTON_PRESSED: #checking if any of our UI elements were pressed and calling their functions
                         if event.ui_element == self.button_cross:
                             self.symChangeCross()
                         elif event.ui_element == self.button_circle:
@@ -479,17 +469,7 @@ class RandomBoardTicTacToe:
                         if(self.game_state.is_terminal()):
                             self.updateWinner()
                 
-                # if event.type == pygame.MOUSEBUTTONUP:
-                    # Get the position
-                    
-                    # Change the x/y screen coordinates to grid coordinates
-                    
-                    # Check if the game is human vs human or human vs AI player from the GUI. 
-                    # If it is human vs human then your opponent should have the value of the selected cell set to -1
-                    # Then draw the symbol for your opponent in the selected cell
-                    # Within this code portion, continue checking if the game has ended by using is_terminal function
-                    
-            # Update the screen with what was drawn.
+                
             pygame.display.update()
 
         self.cleanup()
@@ -505,32 +485,3 @@ YOUR FUNCTION PLAY_GAME SHOULD THEN BE CALLED WITH THE RIGHT OPTIONS AS SOON
 AS THE USER STARTS THE GAME
 """
 
-
-
-"""
-        WILL BE REPURPOSED FOR HUMAN vs HUMAN 
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                            # User clicks the mouse. Get the position
-                            pos = pygame.mouse.get_pos()
-                            # Change the x/y screen coordinates to grid coordinates
-                            column = int(pos[0] // (self.WIDTH + self.MARGIN))
-                            row = int(pos[1] // (self.HEIGHT + self.MARGIN))
-                            # Calculate the center position of the cell
-                            center_x = (column * (self.WIDTH + self.MARGIN)) + self.WIDTH // 2
-                            center_y = (row * (self.HEIGHT + self.MARGIN)) + self.HEIGHT // 2
-
-                            # Set that location to one
-                            if self.cells[row][column] != 1 and self.cells[row][column] != 2:                       #check if cell is even open to play...
-                                self.cells[row][column] = 2                             #user playing will leave value of 2
-                                self.draw_circle(self.screen, center_x, center_y)                                 #draw in cell user symbol...
-                                print("Click ", pos, "Grid coordinates: ", row, column)
-
-                                self.change_turn()
-                                ###############################
-                                for row in self.cells:
-                                    for cell in row:
-                                        print(cell, end=' ')
-                                    print()
-                                ###############################
-                            else:
-                                print("This cell already has a value !")    #maybe make this a popup after reading further documentation."""
